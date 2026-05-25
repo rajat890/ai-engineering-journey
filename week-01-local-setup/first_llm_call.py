@@ -10,5 +10,9 @@ def ask(prompt):
     return response.message.content
 
 if __name__ == "__main__":
-    user_input = input("Ask anything: ")
-    print(ask(user_input))
+    while True:
+        user_input = input("Ask anything: ")
+        if user_input == "exit":
+            break
+        response = ask(user_input)
+        print(response)
