@@ -13,3 +13,10 @@
 - Learned: functions make LLM calls reusable — import ask() anywhere
 - Learned: vague prompts = unpredictable responses (prompt engineering preview)
 - Key analogy: ask() function = Terraform module — write once, call everywhere
+
+## Week 01 — Session 3 — 26 May 2026
+- Added conversation memory using a history list
+- Learned: state must live outside functions, not inside them
+- Learned: return sends the result back to the caller — without it, None is returned
+- Learned: role: assistant is how you feed Mistral its own previous replies
+- Key analogy: stateless Lambda vs Lambda with DynamoDB — same concept

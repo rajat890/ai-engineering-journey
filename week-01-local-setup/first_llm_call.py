@@ -1,12 +1,17 @@
 import ollama
 
-def ask(prompt):
+history = []
+
+def ask(prompt, history):
+    history.append({"role": "user", "content": prompt})
+    
     response = ollama.chat(
         model="mistral",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
+        messages=history
     )
+    
+    history.append({"role": "assistant", "content": response.message.content})
+    
     return response.message.content
 
 if __name__ == "__main__":
@@ -14,5 +19,5 @@ if __name__ == "__main__":
         user_input = input("Ask anything: ")
         if user_input == "exit":
             break
-        response = ask(user_input)
+        response = ask(user_input, history)
         print(response)
