@@ -1,4 +1,6 @@
 import ollama
+import json
+from datetime import datetime
 
 history = [
     {"role": "system", "content": """You are Aria, an AWS and DevOps specialist.
@@ -22,17 +24,26 @@ def ask(prompt, history):
     if len(prompt) > 500:
         return "Please keep your question under 500 characters."
     
-    history.append({"role": "user", "content": prompt})
+    history.append({
+        "role": "user",
+        "content": prompt,
+        "timestamp": datetime.now().strftime("%H:%M:%S")
+    })
     
     if len(history) > 11:
         history = [history[0]] + history[-10:]
     
     response = ollama.chat(
         model="mistral",
-        messages=history
+        messages=history,
+        options={"num_predict": 100}  # limit to 100 tokens
     )
     
-    history.append({"role": "assistant", "content": response.message.content})
+    history.append({
+        "role": "assistant",
+        "content": response.message.content,
+        "timestamp": datetime.now().strftime("%H:%M:%S")
+    })
     
     return response.message.content
 
@@ -40,7 +51,10 @@ if __name__ == "__main__":
     print("Aria — AWS & DevOps Assistant. Type 'exit' to quit.\n")
     while True:
         user_input = input("Rajat: ")
-        if user_input == "exit":
+        if user_input.lower() == "exit":
+            with open("conversation.json", "w") as f:
+                json.dump(history, f, indent=2)
+            print("Conversation saved to conversation.json")
             break
         response = ask(user_input, history)
         print(f"\nAria: {response}\n")
