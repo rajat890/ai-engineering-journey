@@ -40,6 +40,21 @@
 Same model + different system prompt = completely different product.
 Multi-tenant AI = one model, one system prompt per customer.
 
-### Next session
-- Build a proper CLI interface for Aria
-- Add timestamp to conversations
+## Week 02 — Session 2 — 28 May 2026
+
+### What was built
+- Added timestamps to every message in conversation history
+- Saved full conversation to conversation.json on exit
+- Added max token limit to prevent response drift
+- Proved JSON is the right format — maps directly to DynamoDB structure in Week 7
+
+### Concepts learned
+- json.dump() serialises Python objects to disk — like writing Terraform state
+- "w" mode creates file if not exists, overwrites if it does — like bash tee
+- Timestamps reveal latency — short answers ~2s, long answers ~9s
+- Hallucination drift — model over-generates when pattern matching kicks in
+- num_predict limits tokens — first step toward cost and quality control
+
+### Key insight
+conversation.json structure today = DynamoDB item structure in Week 7.
+No transformation needed when we move to AWS.
