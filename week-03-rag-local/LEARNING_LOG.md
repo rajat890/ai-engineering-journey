@@ -20,3 +20,22 @@
 - store_docs.py → terraform apply  
 - ChromaDB → AWS infrastructure
 - RAG → Lambda function with S3 access at runtime
+
+## Week 03 — Session 2 — 30 May 2026
+
+### What was built
+- Switched to PersistentClient — ChromaDB survives restarts
+- Added relevance threshold (1.5) — irrelevant chunks no longer injected
+- Added requirements.txt — professional reproducible project structure
+- Added chroma_db/ to .gitignore — database files not committed to GitHub
+
+### Concepts learned
+- PersistentClient saves ChromaDB to disk — like EBS vs Lambda /tmp
+- get_or_create_collection — idempotent, safe to run multiple times
+- Distance scores measure semantic similarity — lower = more relevant
+- Threshold tuning is AI Platform Engineer's responsibility, not LLM creator's
+- pip freeze > requirements.txt — pins exact versions for reproducibility
+
+### Key insight
+Threshold tuning in RAG = CloudWatch alarm thresholds in DevOps.
+You own these decisions — the LLM creator doesn't.
