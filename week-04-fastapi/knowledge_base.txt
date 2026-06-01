@@ -1,0 +1,17 @@
+DOCUMENT 1 - EKS Setup
+Our EKS cluster name is prod-cluster-mumbai. 
+Node group uses t3.large instances with minimum 3 nodes and maximum 10 nodes.
+Cluster version is Kubernetes 1.28.
+Namespace convention: production, staging, monitoring.
+
+DOCUMENT 2 - Incident Response
+On-call rotation is managed via PagerDuty.
+P1 incidents: page on-call immediately, create Slack thread in #incidents.
+P2 incidents: create Jira ticket, notify team lead.
+Runbook location: confluence.company.com/runbooks
+
+DOCUMENT 3 - CI/CD Pipeline
+All deployments use GitHub Actions.
+Production deployments require 2 approvals.
+Staging deploys automatically on merge to main branch.
+Rollback command: kubectl rollout undo deployment/<name> -n production
