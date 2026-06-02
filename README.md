@@ -9,7 +9,7 @@
 | 01 | Local LLM setup — Ollama + Mistral | ✅ Done |
 | 02 | CLI Chatbot — Prompt engineering + Memory | ✅ Done |
 | 03 | RAG — ChromaDB + Semantic search | ✅ Done |
-| 04 | FastAPI wrapper + Docker | 🔄 In progress |
+| 04 | FastAPI wrapper + Docker containerisation | ✅ Done |
 | 05–12 | AWS AI Integration | ⏳ Upcoming |
 | 13–24 | MLOps + Production + Portfolio | ⏳ Upcoming |
 
