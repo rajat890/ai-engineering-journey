@@ -4,6 +4,8 @@ import ollama
 import chromadb
 from datetime import datetime
 
+ollama_client = ollama.Client(host="http://host.docker.internal:11434")
+
 app = FastAPI()
 
 client = chromadb.PersistentClient(path="./chroma_db")
@@ -56,7 +58,7 @@ def chat(request: ChatRequest):
         "timestamp": datetime.now().strftime("%H:%M:%S")
     })
     
-    response = ollama.chat(
+    response = ollama_client.chat(
         model="mistral",
         messages=history,
         options={"num_predict": 150}
