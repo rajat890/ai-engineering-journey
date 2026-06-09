@@ -62,7 +62,8 @@ resource "aws_opensearchserverless_access_policy" "data" {
         }
       ]
       Principal = [
-        "arn:aws:iam::${var.account_id}:user/rajat-ai"
+        "arn:aws:iam::${var.account_id}:user/rajat-ai",
+        "arn:aws:iam::396510133350:role/aria-chatbot-lambda-role"
       ]
     }
   ])
