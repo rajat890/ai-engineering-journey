@@ -2,15 +2,15 @@ import boto3
 import json
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
-from chromadb.utils import embedding_functions
 
-OPENSEARCH_ENDPOINT = "y0wd7n9mabu6y08lht2f.us-east-1.aoss.amazonaws.com"
+OPENSEARCH_ENDPOINT = "p1jrl7ewn1l7cdp43iqd.us-east-1.aoss.amazonaws.com"
 REGION = "us-east-1"
 INDEX_NAME = "aria-knowledge"
 S3_BUCKET = "aria-rag-knowledge-base-396510133350"
 S3_KEY = "knowledge_base.txt"
 
-# AWS auth for OpenSearch Serverless
+bedrock_client = boto3.client("bedrock-runtime", region_name=REGION)
+
 credentials = boto3.Session().get_credentials()
 awsauth = AWS4Auth(
     credentials.access_key,
@@ -20,22 +20,27 @@ awsauth = AWS4Auth(
     session_token=credentials.token
 )
 
-# OpenSearch client
 os_client = OpenSearch(
     hosts=[{"host": OPENSEARCH_ENDPOINT, "port": 443}],
     http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
-    connection_class=RequestsHttpConnection
+    connection_class=RequestsHttpConnection,
+    timeout=30
 )
 
-# Embedding model — same as ChromaDB used locally
-ef = embedding_functions.DefaultEmbeddingFunction()
+def get_embedding(text):
+    response = bedrock_client.invoke_model(
+        modelId="amazon.titan-embed-text-v2:0",
+        body=json.dumps({"inputText": text})
+    )
+    body = json.loads(response['body'].read())
+    return body['embedding']
 
 def create_index():
     if os_client.indices.exists(index=INDEX_NAME):
-        print(f"Index {INDEX_NAME} already exists")
-        return
+        print(f"Deleting existing index {INDEX_NAME}...")
+        os_client.indices.delete(index=INDEX_NAME)
     
     mapping = {
         "mappings": {
@@ -43,7 +48,7 @@ def create_index():
                 "content": {"type": "text"},
                 "embedding": {
                     "type": "knn_vector",
-                    "dimension": 384
+                    "dimension": 1024
                 }
             }
         },
@@ -55,7 +60,7 @@ def create_index():
     }
     
     os_client.indices.create(index=INDEX_NAME, body=mapping)
-    print(f"Index {INDEX_NAME} created")
+    print(f"Index {INDEX_NAME} created with dimension 1024")
 
 def load_documents_from_s3():
     s3 = boto3.client("s3", region_name=REGION)
@@ -67,7 +72,7 @@ def load_documents_from_s3():
 
 def index_documents(chunks):
     for i, chunk in enumerate(chunks):
-        embedding = ef([chunk])[0]
+        embedding = get_embedding(chunk)
         
         doc = {
             "content": chunk,

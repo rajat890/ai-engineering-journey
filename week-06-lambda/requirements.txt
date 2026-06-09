@@ -3,3 +3,6 @@ uvicorn
 mangum
 boto3
 pydantic
+opensearch-py
+requests-aws4auth
+requests

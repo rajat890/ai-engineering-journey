@@ -57,3 +57,51 @@ Same principle as Terraform state — source of truth separate from running infr
 ### Problems solved
 - Custom document IDs not supported in OpenSearch Serverless → removed id parameter
 - Photosynthesis returning wrong results → raised threshold from 0.3 to 0.4
+
+## Week 07 — Session 2 — 09 June 2026
+
+### What was built
+- Updated Lambda to use OpenSearch for semantic search
+- Replaced keyword search with Titan Embeddings + OpenSearch knn query
+- Full cloud RAG pipeline working end to end
+- Added error handling to Lambda for better debugging
+
+### Full pipeline
+curl
+→ API Gateway
+→ Lambda
+→ Titan Embeddings (converts question to vector)
+→ OpenSearch (finds relevant chunk)
+→ Bedrock Claude Haiku (generates answer)
+→ JSON response
+
+### Key changes from Week 06
+- Removed keyword search → replaced with OpenSearch knn query
+- Added Titan Embeddings → cloud embedding model, no local model needed
+- Added opensearch-py + requests-aws4auth to Lambda requirements
+- Added aoss:APIAccessAll to Lambda IAM role
+- Added Lambda role to OpenSearch access policy Principal
+
+### Concepts learned
+- Titan Embeddings = AWS managed embedding model on Bedrock
+- dimension 1024 for Titan vs 384 for local ChromaDB model — must match
+- Lambda IAM role needs aoss:APIAccessAll to query OpenSearch
+- OpenSearch access policy Principal must include Lambda role ARN
+- try/except in Lambda = always return response, never crash silently
+- RAG does NOT train the model — injects information at runtime
+- Training = permanent, expensive. RAG = runtime, cheap, updatable
+
+### RAG vs Training
+Training  → change model weights permanently — days, expensive
+RAG       → inject documents into prompt — instant, cents per query
+
+### Cost this session
+OpenSearch  → ~$0.48/hour × ~2 hours = ~$1.00
+Titan Embeddings → ~$0.00 (tiny usage)
+Bedrock calls → ~$0.001 per question
+Total → ~$1.00 ✓
+
+### Problems solved
+- Lambda 403 on OpenSearch → added Lambda role to access policy Principal
+- Error not visible in logs → added try/except with print statements
+- Old container cached → force updated via update-function-configuration

@@ -12,7 +12,7 @@
 | 04 | FastAPI wrapper + Docker containerisation | ✅ Done |
 | 05 | AWS Bedrock — Claude Haiku + IAM Terraform | ✅ Done |
 | 06 | Lambda + API Gateway — Aria live on internet | ✅ Done |
-| 07 | Cloud RAG — S3 + OpenSearch Serverless | ⏳ Upcoming |
+| 07 | Cloud RAG — S3 + OpenSearch + Titan Embeddings | ✅ Done |
 | 08 | Advanced RAG — Bedrock Knowledge Bases | ⏳ Upcoming |
 | 09–10 | AI Agents — LangChain + Bedrock Agents | ⏳ Upcoming |
 | 11–12 | Observability — CloudWatch + Cost dashboards | ⏳ Upcoming |

@@ -4,7 +4,7 @@ from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from chromadb.utils import embedding_functions
 
-OPENSEARCH_ENDPOINT = "y0wd7n9mabu6y08lht2f.us-east-1.aoss.amazonaws.com"
+OPENSEARCH_ENDPOINT = "p1jrl7ewn1l7cdp43iqd.us-east-1.aoss.amazonaws.com"
 REGION = "us-east-1"
 INDEX_NAME = "aria-knowledge"
 
@@ -22,7 +22,8 @@ os_client = OpenSearch(
     http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
-    connection_class=RequestsHttpConnection
+    connection_class=RequestsHttpConnection,
+    timeout=30
 )
 
 ef = embedding_functions.DefaultEmbeddingFunction()

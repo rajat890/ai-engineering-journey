@@ -2,38 +2,35 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from mangum import Mangum
 import boto3
-import json
+import os
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
 
 app = FastAPI()
 
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
 
-KNOWLEDGE_BASE = [
-    {
-        "id": "doc_1",
-        "content": """DOCUMENT 1 - EKS Setup
-Our EKS cluster name is prod-cluster-mumbai. 
-Node group uses t3.large instances with minimum 3 nodes and maximum 10 nodes.
-Cluster version is Kubernetes 1.28.
-Namespace convention: production, staging, monitoring."""
-    },
-    {
-        "id": "doc_2", 
-        "content": """DOCUMENT 2 - Incident Response
-On-call rotation is managed via PagerDuty.
-P1 incidents: page on-call immediately, create Slack thread in #incidents.
-P2 incidents: create Jira ticket, notify team lead.
-Runbook location: confluence.company.com/runbooks"""
-    },
-    {
-        "id": "doc_3",
-        "content": """DOCUMENT 3 - CI/CD Pipeline
-All deployments use GitHub Actions.
-Production deployments require 2 approvals.
-Staging deploys automatically on merge to main branch.
-Rollback command: kubectl rollout undo deployment/<name> -n production"""
-    }
-]
+OPENSEARCH_ENDPOINT = "p1jrl7ewn1l7cdp43iqd.us-east-1.aoss.amazonaws.com"
+REGION = "us-east-1"
+INDEX_NAME = "aria-knowledge"
+
+credentials = boto3.Session().get_credentials()
+awsauth = AWS4Auth(
+    credentials.access_key,
+    credentials.secret_key,
+    REGION,
+    "aoss",
+    session_token=credentials.token
+)
+
+os_client = OpenSearch(
+    hosts=[{"host": OPENSEARCH_ENDPOINT, "port": 443}],
+    http_auth=awsauth,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+    timeout=30
+)
 
 SYSTEM_PROMPT = """You are Aria, an AWS and DevOps specialist.
 Answer questions using the context provided.
@@ -46,50 +43,77 @@ messages = []
 class ChatRequest(BaseModel):
     message: str
 
-def search_knowledge_base(question):
-    question_lower = question.lower()
-    best_match = None
-    best_score = 0
-    
-    for doc in KNOWLEDGE_BASE:
-        words = question_lower.split()
-        score = sum(1 for word in words if word in doc['content'].lower())
-        if score > best_score:
-            best_score = score
-            best_match = doc['content']
-    
-    if best_score > 0:
-        return best_match
-    return None
+def get_embedding(text):
+    response = bedrock.invoke_model(
+        modelId="amazon.titan-embed-text-v2:0",
+        body=__import__('json').dumps({"inputText": text})
+    )
+    body = __import__('json').loads(response['body'].read())
+    return body['embedding']
 
+def search_knowledge_base(question):
+    try:
+        embedding = get_embedding(question)
+        
+        query = {
+            "size": 1,
+            "query": {
+                "knn": {
+                    "embedding": {
+                        "vector": embedding,
+                        "k": 1
+                    }
+                }
+            }
+        }
+        
+        response = os_client.search(index=INDEX_NAME, body=query)
+        hits = response['hits']['hits']
+        
+        if hits:
+            score = hits[0]['_score']
+            if score < 0.4:
+                return None
+            return hits[0]['_source']['content']
+        return None
+        
+    except Exception as e:
+        print(f"OpenSearch error: {type(e).__name__}: {str(e)}")
+        return None
+    
 @app.post("/chat")
 def chat(request: ChatRequest):
-    relevant_chunk = search_knowledge_base(request.message)
+    try:
+        relevant_chunk = search_knowledge_base(request.message)
+        
+        if relevant_chunk:
+            prompt = f"Context:\n{relevant_chunk}\n\nQuestion: {request.message}"
+        else:
+            prompt = request.message
+        
+        messages.append({
+            "role": "user",
+            "content": [{"text": prompt}]
+        })
+        
+        response = bedrock.converse(
+            modelId="us.anthropic.claude-haiku-4-5-20251001-v1:0",
+            system=[{"text": SYSTEM_PROMPT}],
+            messages=messages,
+            inferenceConfig={"maxTokens": 150}
+        )
+        
+        reply = response['output']['message']['content'][0]['text']
+        
+        messages.append({
+            "role": "assistant",
+            "content": [{"text": reply}]
+        })
+        
+        return {"response": reply}
     
-    if relevant_chunk:
-        prompt = f"Context:\n{relevant_chunk}\n\nQuestion: {request.message}"
-    else:
-        prompt = request.message
-    
-    messages.append({
-        "role": "user",
-        "content": [{"text": prompt}]
-    })
-    
-    response = bedrock.converse(
-        modelId="us.anthropic.claude-haiku-4-5-20251001-v1:0",
-        system=[{"text": SYSTEM_PROMPT}],
-        messages=messages,
-        inferenceConfig={"maxTokens": 150}
-    )
-    
-    reply = response['output']['message']['content'][0]['text']
-    
-    messages.append({
-        "role": "assistant",
-        "content": [{"text": reply}]
-    })
-    
-    return {"response": reply}
+    except Exception as e:
+        print(f"Chat error: {type(e).__name__}: {str(e)}")
+        return {"response": f"Error: {str(e)}"}
 
 handler = Mangum(app)

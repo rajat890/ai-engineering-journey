@@ -59,3 +59,15 @@ Same principle as EC2 + EBS — separate compute from state.
 - Lambda base image SQLite version → switched to python:3.11-slim + awslambdaric
 - ChromaDB cold start download in Lambda → removed, replaced with keyword search
 - Reserved environment variable → removed AWS_DEFAULT_REGION from Terraform
+
+## Week 06 — Session 2 — 09 June 2026
+
+### What was updated
+- Connected Lambda to OpenSearch Serverless for semantic search
+- Added Titan Embeddings for cloud-based vector generation
+- Added opensearch-py and requests-aws4auth to requirements.txt
+- Added error handling with try/except throughout
+
+### Key insight
+Lambda code lives in week-06-lambda — changes here rebuild the Docker image.
+week-07-opensearch contains local tooling only — not deployed to Lambda.
