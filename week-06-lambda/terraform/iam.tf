@@ -42,6 +42,17 @@ resource "aws_iam_role_policy" "lambda_bedrock" {
           "aoss:APIAccessAll"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:RetrieveAndGenerate",
+          "bedrock:Retrieve",
+          "bedrock:GetInferenceProfile",
+          "bedrock:ListInferenceProfiles",
+          "bedrock:InvokeModel"
+        ]
+        Resource = "*"
       }
     ]
   })
