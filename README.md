@@ -13,7 +13,7 @@
 | 05 | AWS Bedrock — Claude Haiku + IAM Terraform | ✅ Done |
 | 06 | Lambda + API Gateway — Aria live on internet | ✅ Done |
 | 07 | Cloud RAG — S3 + OpenSearch + Titan Embeddings | ✅ Done |
-| 08 | Advanced RAG — Bedrock Knowledge Bases | ⏳ Upcoming |
+| 08 | Advanced RAG — Bedrock Knowledge Bases | ✅ Done |
 | 09–10 | AI Agents — LangChain + Bedrock Agents | ⏳ Upcoming |
 | 11–12 | Observability — CloudWatch + Cost dashboards | ⏳ Upcoming |
 | 13–16 | SageMaker Pipelines + MLOps | ⏳ Upcoming |
