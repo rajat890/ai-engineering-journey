@@ -60,3 +60,39 @@ Bedrock retrieve()   → ~$0.0001 per search
 
 Total session        → ~$0.05 ✓
 
+## Week 09 — Session 2 — 19 June 2026
+
+### What was built
+- agent_aws.py — agent with real AWS tool calls
+- check_lambda_status() — queries actual Lambda function via boto3
+- get_recent_logs() — fetches CloudWatch logs for any Lambda
+- Combined KB search + AWS tools in one agent
+
+### Key concepts learned
+- bedrock-runtime → talk to LLM directly (converse, invoke_model)
+- bedrock-agent-runtime → talk to managed AWS services (retrieve, retrieve_and_generate)
+- get_function() → correct boto3 method for Lambda status
+- boto3 naming pattern: get_ or describe_ never just the resource name
+- Tool descriptions matter — better description = better tool selection
+- One question can trigger multiple tools — agent chains them automatically
+- Token discipline — one well-crafted question tests more than three separate ones
+
+### Real AWS tools added
+```python
+check_lambda_status()  → lambda_client.get_function()
+get_recent_logs()      → logs_client.filter_log_events()
+```
+
+### boto3 client reference
+```python
+bedrock-runtime        → converse(), invoke_model()
+bedrock-agent-runtime  → retrieve(), retrieve_and_generate()
+lambda                 → get_function(), list_functions()
+logs                   → filter_log_events()
+```
+
+### Key insight
+Agent = Claude (orchestrator) + your Python functions (workers)
+Claude never executes code — it decides WHAT to call and WHEN
+Your code does the actual work and returns results to Claude
+Tool description quality directly determines tool selection accuracy
