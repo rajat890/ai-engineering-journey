@@ -14,7 +14,8 @@
 | 06 | Lambda + API Gateway — Aria live on internet | ✅ Done |
 | 07 | Cloud RAG — S3 + OpenSearch + Titan Embeddings | ✅ Done |
 | 08 | Advanced RAG — Bedrock Knowledge Bases | ✅ Done |
-| 09–10 | AI Agents — LangChain + Bedrock Agents | ⏳ Upcoming |
+| 09–10 | AI Agents — LangChain + Bedrock Agents | ✅ Done |
+| 10 | Bedrock Agents — managed agent with Lambda tools | ✅ Done |
 | 11–12 | Observability — CloudWatch + Cost dashboards | ⏳ Upcoming |
 | 13–16 | SageMaker Pipelines + MLOps | ⏳ Upcoming |
 | 17–20 | Portfolio project — Full AI product | ⏳ Upcoming |
