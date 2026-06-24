@@ -16,7 +16,7 @@
 | 08 | Advanced RAG — Bedrock Knowledge Bases | ✅ Done |
 | 09–10 | AI Agents — LangChain + Bedrock Agents | ✅ Done |
 | 10 | Bedrock Agents — managed agent with Lambda tools | ✅ Done |
-| 11–12 | Observability — CloudWatch + Cost dashboards | ⏳ Upcoming |
+| 11 | Observability — CloudWatch dashboards + cost tracking | ✅ Done |
 | 13–16 | SageMaker Pipelines + MLOps | ⏳ Upcoming |
 | 17–20 | Portfolio project — Full AI product | ⏳ Upcoming |
 | 21–24 | Fine-tuning + ML Specialty + Freelance launch | ⏳ Upcoming |
