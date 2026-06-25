@@ -1,10 +1,13 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 import boto3
 import uuid
 
 bedrock_agent = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
 
-AGENT_ID = "PQBYOIILHH"
-AGENT_ALIAS_ID = "TSTALIASID"  # default test alias
+AGENT_ID = os.getenv("AGENT_ID", "")
+AGENT_ALIAS_ID = os.getenv("AGENT_ALIAS_ID", "TSTALIASID")
 
 def ask_agent(question):
     print(f"\nUser: {question}")

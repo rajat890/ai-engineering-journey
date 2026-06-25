@@ -1,7 +1,10 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 import boto3
 import json
 import math
-import os
 from datetime import datetime, timedelta
 
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
@@ -10,7 +13,7 @@ lambda_client = boto3.client("lambda", region_name="us-east-1")
 logs_client = boto3.client("logs", region_name="us-east-1")
 
 MODEL_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
-KNOWLEDGE_BASE_ID = os.environ.get("KNOWLEDGE_BASE_ID", "5Q2FNMHEF0")
+KNOWLEDGE_BASE_ID = os.getenv("KNOWLEDGE_BASE_ID", "")
 
 tools = [
     {

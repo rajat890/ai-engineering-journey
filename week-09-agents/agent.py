@@ -1,13 +1,16 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 import boto3
 import json
 import math
-import os
 
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
 bedrock_agent = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
 
 MODEL_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
-KNOWLEDGE_BASE_ID = os.environ.get("KNOWLEDGE_BASE_ID", "5Q2FNMHEF0")
+KNOWLEDGE_BASE_ID = os.getenv("KNOWLEDGE_BASE_ID", "")
 
 tools = [
     {

@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 from fastapi import FastAPI
 from pydantic import BaseModel
 from mangum import Mangum
@@ -7,8 +10,8 @@ app = FastAPI()
 
 bedrock_agent = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
 
-KNOWLEDGE_BASE_ID = "5Q2FNMHEF0"
-MODEL_ARN = "arn:aws:bedrock:us-east-1:396510133350:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0"
+KNOWLEDGE_BASE_ID = os.getenv("KNOWLEDGE_BASE_ID", "")
+MODEL_ARN = f"arn:aws:bedrock:{os.getenv('AWS_REGION')}:{os.getenv('AWS_ACCOUNT_ID')}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0"
 
 messages = []
 

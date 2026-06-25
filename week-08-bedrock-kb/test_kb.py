@@ -1,8 +1,11 @@
-import boto3
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-KNOWLEDGE_BASE_ID = "5Q2FNMHEF0"
-REGION = "us-east-1"
-MODEL_ARN = "arn:aws:bedrock:us-east-1:396510133350:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0"
+KNOWLEDGE_BASE_ID = os.getenv("KNOWLEDGE_BASE_ID", "")
+AWS_ACCOUNT_ID = os.getenv("AWS_ACCOUNT_ID", "")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+MODEL_ARN = f"arn:aws:bedrock:{AWS_REGION}:{AWS_ACCOUNT_ID}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0"
 
 bedrock_agent = boto3.client("bedrock-agent-runtime", region_name=REGION)
 

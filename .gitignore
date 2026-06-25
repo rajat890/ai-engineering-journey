@@ -1,11 +1,24 @@
+# Mac
+.DS_Store
+
+# Environment variables
+.env
+
+# Python
 venv/
 __pycache__/
 *.pyc
-.env
-chroma_db/
+*.pyo
+
 # Terraform
 **/.terraform/
 **/terraform.tfstate
 **/terraform.tfstate.backup
 *.tfvars
 *.tfvars.json
+
+# Vector DB
+chroma_db/
+
+# Docker
+*.tar
