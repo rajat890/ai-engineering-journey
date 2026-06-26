@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 from fastapi import FastAPI
 from pydantic import BaseModel
 from mangum import Mangum
@@ -10,7 +13,9 @@ app = FastAPI()
 
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
 
-OPENSEARCH_ENDPOINT = "p1jrl7ewn1l7cdp43iqd.us-east-1.aoss.amazonaws.com"
+# OpenSearch was used in Week 7 — replaced by Bedrock KB in Week 8
+# OPENSEARCH_ENDPOINT moved to environment variables
+OPENSEARCH_ENDPOINT = os.getenv("OPENSEARCH_ENDPOINT", "")
 REGION = "us-east-1"
 INDEX_NAME = "aria-knowledge"
 

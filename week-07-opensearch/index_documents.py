@@ -1,12 +1,15 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 import boto3
 import json
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 
-OPENSEARCH_ENDPOINT = "p1jrl7ewn1l7cdp43iqd.us-east-1.aoss.amazonaws.com"
+OPENSEARCH_ENDPOINT = os.getenv("OPENSEARCH_ENDPOINT", "")
 REGION = "us-east-1"
 INDEX_NAME = "aria-knowledge"
-S3_BUCKET = "aria-rag-knowledge-base-396510133350"
+S3_BUCKET = os.getenv("S3_BUCKET", "")
 S3_KEY = "knowledge_base.txt"
 
 bedrock_client = boto3.client("bedrock-runtime", region_name=REGION)

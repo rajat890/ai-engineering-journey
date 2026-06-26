@@ -2,13 +2,16 @@ import boto3
 import json
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 cloudwatch = boto3.client("cloudwatch", region_name="us-east-1")
 bedrock = boto3.client("bedrock-runtime", region_name="us-east-1")
 bedrock_agent_runtime = boto3.client("bedrock-agent-runtime", region_name="us-east-1")
 
 MODEL_ID = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
-KNOWLEDGE_BASE_ID = "5Q2FNMHEF0"
+KNOWLEDGE_BASE_ID = os.getenv("KNOWLEDGE_BASE_ID", "")
 NAMESPACE = "Aria/AIMetrics"
 
 def push_metric(metric_name, value, unit="Count", dimensions=None):
