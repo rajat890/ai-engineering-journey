@@ -44,7 +44,7 @@ Bedrock Agent (autonomous):
 | 10 | Managed Agents | Bedrock Agents + Lambda Tools | ✅ |
 | 11 | Observability | CloudWatch + Cost Tracking | ✅ |
 | 12 | Consolidation | Architecture + Documentation | ✅ |
-| 13-16 | MLOps | SageMaker Pipelines | ⏳ |
+| 13 | MLOps — SageMaker training scripts + local model training | ✅ Done |
 | 17-20 | Portfolio Project | Full AI Product | ⏳ |
 | 21-24 | Advanced | Fine-tuning + Specialisation | ⏳ |
 
