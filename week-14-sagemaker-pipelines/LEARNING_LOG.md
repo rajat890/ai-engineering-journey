@@ -1,0 +1,1 @@
+Week 14: Built first SageMaker Pipeline (Process → Train → Evaluate) in local mode; learned that Pipeline step hand-offs (`step.properties`) require real S3 even when compute runs locally, and that training artifacts are always packaged as model.tar.gz.
