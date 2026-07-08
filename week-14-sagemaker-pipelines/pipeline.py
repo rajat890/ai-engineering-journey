@@ -18,6 +18,12 @@ from sagemaker.processing import ProcessingInput, ProcessingOutput
 from sagemaker.workflow.steps import ProcessingStep, TrainingStep
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.pipeline_context import LocalPipelineSession
+from sagemaker.workflow.properties import PropertyFile
+from sagemaker.workflow.condition_step import ConditionStep
+from sagemaker.workflow.conditions import ConditionGreaterThanOrEqualTo
+from sagemaker.workflow.functions import JsonGet, Join
+from sagemaker.workflow.fail_step import FailStep
+from sagemaker.workflow.parameters import ParameterFloat
 from sagemaker.inputs import TrainingInput
 
 # --- Setup ---------------------------------------------------------------
@@ -103,6 +109,17 @@ evaluator = SKLearnProcessor(
     sagemaker_session=local_pipeline_session,
 )
 
+# PropertyFile = a named pointer to a JSON file a step will produce.
+# We don't know the real S3 path yet (it depends on the execution ID,
+# generated fresh each run) -- this just tells the pipeline: "the
+# EvaluateModel step's 'evaluation' output will contain a file called
+# evaluation.json, and later steps can query values out of it by name."
+evaluation_report = PropertyFile(
+    name="EvaluationReport",       # <-- the name we'll reference later
+    output_name="evaluation",      # <-- must match ProcessingOutput's output_name below
+    path="evaluation.json",        # <-- the actual filename inside that output
+)
+
 step_evaluate = ProcessingStep(
     name="EvaluateModel",
     processor=evaluator,
@@ -123,13 +140,93 @@ step_evaluate = ProcessingStep(
         ProcessingOutput(output_name="evaluation", source="/opt/ml/processing/evaluation"),
     ],
     code="evaluate.py",
+    property_files=[evaluation_report],  # <-- attach it to this step
+)
+
+# --- Step 4: Condition (pass/fail gate) --------------------------------------
+
+# ParameterFloat = a pipeline input variable, like a Terraform `variable`.
+# Override it per-run with pipeline.start(parameters={"AccuracyThreshold": 0.8})
+# without touching this code -- default_value is what's used if you don't.
+accuracy_threshold = ParameterFloat(name="AccuracyThreshold", default_value=0.7)
+
+# JsonGet is the "read a value out of a PropertyFile" mechanism we set up
+# last task. json_path walks into the JSON structure evaluate.py wrote:
+#   {"classification_metrics": {"accuracy": {"value": 0.667}}}
+cond_gte_threshold = ConditionGreaterThanOrEqualTo(
+    left=JsonGet(
+        step_name=step_evaluate.name,
+        property_file=evaluation_report,
+        json_path="classification_metrics.accuracy.value",
+    ),
+    right=accuracy_threshold,
+)
+
+# if_steps run when the condition is True, else_steps when False.
+#
+# NOTE ON WHY THESE STEPS ARE DEFINED HERE (not earlier, and not added to
+# pipeline.steps below): SageMaker explicitly forbids listing a step in
+# BOTH the pipeline's top-level `steps=[...]` AND inside a ConditionStep's
+# if_steps/else_steps -- it belongs to the condition, not the pipeline
+# directly. The ConditionStep itself (added to pipeline.steps) is what
+# makes these reachable at execution time.
+
+register_processor = SKLearnProcessor(
+    framework_version="1.2-1",
+    role=role,
+    instance_type="local",
+    instance_count=1,
+    base_job_name="aria-register",
+    sagemaker_session=local_pipeline_session,
+)
+
+step_register = ProcessingStep(
+    name="RegisterModelPlaceholder",
+    processor=register_processor,
+    inputs=[
+        ProcessingInput(
+            source=step_train.properties.ModelArtifacts.S3ModelArtifacts,
+            destination="/opt/ml/processing/model",
+        ),
+    ],
+    code="register_model.py",
+)
+
+# FailStep stops the pipeline execution in a FAILED state with a clear
+# message -- this is the "else" branch. Join builds the message string
+# out of a mix of literal text and resolved runtime values (the actual
+# accuracy number), similar to an f-string but resolved at execution time
+# since neither value exists yet when this code runs.
+step_fail = FailStep(
+    name="AccuracyBelowThreshold",
+    error_message=Join(
+        on=" ",
+        values=[
+            "Model accuracy",
+            JsonGet(
+                step_name=step_evaluate.name,
+                property_file=evaluation_report,
+                json_path="classification_metrics.accuracy.value",
+            ),
+            "is below required threshold",
+            accuracy_threshold,
+        ],
+    ),
+)
+
+step_condition = ConditionStep(
+    name="CheckAccuracyThreshold",
+    conditions=[cond_gte_threshold],
+    if_steps=[step_register],
+    else_steps=[step_fail],
 )
 
 # --- Assemble and run --------------------------------------------------------
 
 pipeline = Pipeline(
     name="aria-classifier-pipeline",
-    steps=[step_process, step_train, step_evaluate],
+    parameters=[accuracy_threshold],
+    steps=[step_process, step_train, step_evaluate, step_condition],
     sagemaker_session=local_pipeline_session,
 )
 
