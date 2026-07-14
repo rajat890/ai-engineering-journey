@@ -1,0 +1,14 @@
+[
+    {"text": "EC2 virtual server instance compute", "label": "compute"},
+    {"text": "Lambda serverless function compute", "label": "compute"},
+    {"text": "ECS container orchestration compute", "label": "compute"},
+    {"text": "EKS kubernetes cluster compute", "label": "compute"},
+    {"text": "S3 object storage bucket", "label": "storage"},
+    {"text": "EBS block storage volume", "label": "storage"},
+    {"text": "EFS file system storage", "label": "storage"},
+    {"text": "Glacier archive storage cold", "label": "storage"},
+    {"text": "VPC virtual private network", "label": "networking"},
+    {"text": "Route53 DNS domain routing", "label": "networking"},
+    {"text": "CloudFront CDN content delivery", "label": "networking"},
+    {"text": "API Gateway REST API networking", "label": "networking"}
+]
